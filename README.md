@@ -1,7 +1,20 @@
-# Focal Engine App Example
+# FocalEngineAppExample
+This repository provides an example of a simple application that integrates the [Focal Engine](https://github.com/Azzinoth/FocalEngine/).
+## Building the Project for Visual Studio (Windows)
+```bash
+# Initialize a new Git repository
+git init
 
-How to clone:<br />
-git init<br />
-git remote add origin https://github.com/Azzinoth/FocalEngineAppExample<br />
-git pull origin master<br />
-git submodule update --init --recursive<br />
+# Add the remote repository
+git remote add origin https://github.com/Azzinoth/FocalEngineAppExample
+
+# Pull the contents of the remote repository
+git pull origin master
+
+# Initialize and update submodules
+git submodule update --init --recursive
+
+# Generate the build files using CMake
+# Will work in Windows PowerShell
+cmake CMakeLists.txt
+```
