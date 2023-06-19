@@ -1,4 +1,7 @@
 # FocalEngineAppExample
+
+![build](https://github.com/Azzinoth/FocalEngineAppExample/actions/workflows/Build.yml/badge.svg?branch=master)
+
 This repository provides an example of a simple application that integrates the [Focal Engine](https://github.com/Azzinoth/FocalEngine/).
 ## Building the Project for Visual Studio (Windows)
 ```bash
