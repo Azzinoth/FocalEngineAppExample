@@ -65,7 +65,7 @@ void SetSimpleScene()
 	ENGINE.AddMouseButtonCallback(mouseButtonCallback);
 	ENGINE.AddKeyCallback(keyButtonCallback);
 
-	RENDERER.SetSkyEnabld(true);
+	RENDERER.SetSkyEnabled(true);
 	RENDERER.SetDistanceFogEnabled(false);
 
 	FEDirectionalLight* Sun = reinterpret_cast<FEDirectionalLight*>(SCENE.AddLight(FE_DIRECTIONAL_LIGHT, "Sun"));
