@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.1)
+cmake_minimum_required(VERSION 3.10)
 
 set(BUILD_TYPE "Debug and Release" CACHE STRING "Choose Build type")
 set(CMAKE_BUILD_TYPE Debug)
@@ -35,12 +35,7 @@ add_executable(FocalEngineExample WIN32
 								  ${Example_SRC}
 )
 
-target_link_libraries(FocalEngineExample FocalEngine)
-
-target_link_libraries(FocalEngineExample glew32s.lib)
-target_link_libraries(FocalEngineExample glfw3.lib)
-target_link_libraries(FocalEngineExample glfw3dll.lib)
-target_link_libraries(FocalEngineExample opengl32.lib)
+target_link_libraries(FocalEngineExample PRIVATE FocalEngine)
 
 source_group("Source Files" FILES ${Example_SRC})
 
