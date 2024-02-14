@@ -100,7 +100,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 	SetSimpleScene();
 
-	while (ENGINE.IsWindowOpened())
+	while (ENGINE.IsNotTerminated())
 	{
 		ENGINE.BeginFrame();
 		ENGINE.Render();
