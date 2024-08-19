@@ -1,23 +1,25 @@
 #include "SubSystems/FocalEngine/FEngine.h"
 using namespace FocalEngine;
 
+FEScene* CurrentScene = nullptr;
+
 void mouseButtonCallback(int button, int action, int mods)
 {
 	if (ImGui::GetIO().WantCaptureMouse)
 	{
-		ENGINE.GetCamera()->SetIsInputActive(false);
+		CAMERA_SYSTEM.SetIsIndividualInputActive(CAMERA_SYSTEM.GetMainCameraEntity(CurrentScene), false);
 		return;
 	}
 
-	if (button == GLFW_MOUSE_BUTTON_1 && action == GLFW_PRESS)
+	if (button == GLFW_MOUSE_BUTTON_2 && action == GLFW_PRESS)
 	{
-		ENGINE.GetCamera()->SetIsInputActive(true);
+		CAMERA_SYSTEM.SetIsIndividualInputActive(CAMERA_SYSTEM.GetMainCameraEntity(CurrentScene), true);
 	}
 
 
-	if (button == GLFW_MOUSE_BUTTON_1 && action == GLFW_RELEASE)
+	if (button == GLFW_MOUSE_BUTTON_2 && action == GLFW_RELEASE)
 	{
-		ENGINE.GetCamera()->SetIsInputActive(false);
+		CAMERA_SYSTEM.SetIsIndividualInputActive(CAMERA_SYSTEM.GetMainCameraEntity(CurrentScene), false);
 	}
 }
 
@@ -25,11 +27,9 @@ void keyButtonCallback(int key, int scancode, int action, int mods)
 {
 	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
 		ENGINE.Terminate();
-
-	ENGINE.GetCamera()->KeyboardInput(key, scancode, action, mods);
 }
 
-FEEntity* LoadSampleEntity()
+void LoadSampleEntity()
 {
 	FEMesh* LoadedMesh = RESOURCE_MANAGER.LoadFEMesh("Resources//Cardboard.model");
 
@@ -41,23 +41,9 @@ FEEntity* LoadSampleEntity()
 	NewMaterial->SetRoughnessMap(RESOURCE_MANAGER.LoadFETexture("Resources//Roughness.texture"));
 
 	FEGameModel* NewGameModel = RESOURCE_MANAGER.CreateGameModel(LoadedMesh, NewMaterial);
-	FEPrefab* NewPrefab = RESOURCE_MANAGER.CreatePrefab(NewGameModel);
 
-	return SCENE.AddEntity(NewPrefab);
-}
-
-void SetCamera(FEEntity* EntityToLookAt)
-{
-	FEModelViewCamera* NewCamera = new FEModelViewCamera("ModelView Camera");
-	NewCamera->SetAspectRatio(static_cast<float>(ENGINE.GetRenderTargetWidth()) / static_cast<float>(ENGINE.GetRenderTargetHeight()));
-	glm::vec3 Position = glm::vec3(0.0f);
-	Position = EntityToLookAt->Transform.GetPosition();
-	NewCamera->SetTrackingObjectPosition(Position);
-	NewCamera->SetDistanceToModel(50.0f);
-	NewCamera->SetAzimutAngle(45.0f);
-	NewCamera->SetPolarAngle(45.0f);
-	NewCamera->SetIsInputActive(false);
-	ENGINE.SetCamera(NewCamera);
+	FEEntity* Result = CurrentScene->CreateEntity("Cardboard");
+	Result->AddComponent<FEGameModelComponent>(NewGameModel);
 }
 
 void SetSimpleScene()
@@ -65,15 +51,23 @@ void SetSimpleScene()
 	ENGINE.AddMouseButtonCallback(mouseButtonCallback);
 	ENGINE.AddKeyCallback(keyButtonCallback);
 
-	RENDERER.SetSkyEnabled(true);
-	RENDERER.SetDistanceFogEnabled(false);
+	CurrentScene = SCENE_MANAGER.CreateScene();
 
-	FEDirectionalLight* Sun = reinterpret_cast<FEDirectionalLight*>(SCENE.AddLight(FE_DIRECTIONAL_LIGHT, "Sun"));
-	Sun->Transform.SetRotation(glm::vec3(0.0f, 45.0f, 45.0f));
-	Sun->SetCastShadows(true);
+	FEEntity* SkyDome = CurrentScene->CreateEntity("SkyDome");
+	SkyDome->GetComponent<FETransformComponent>().SetScale(glm::vec3(100.0f));
+	SkyDome->AddComponent<FESkyDomeComponent>();
 
-	FEEntity* NewEntity = LoadSampleEntity();
-	SetCamera(NewEntity);
+	FEEntity* Sun = CurrentScene->CreateEntity("Sun");
+	Sun->AddComponent<FELightComponent>(FE_DIRECTIONAL_LIGHT);
+	Sun->GetComponent<FELightComponent>().SetCastShadows(true);
+	Sun->GetComponent<FETransformComponent>().SetRotation(glm::vec3(0.0f, 45.0f, 45.0f));
+
+	FEEntity* Camera = CurrentScene->CreateEntity("Camera");
+	Camera->AddComponent<FECameraComponent>();
+	CAMERA_SYSTEM.SetMainCamera(Camera);
+	CAMERA_SYSTEM.SetCameraViewport(Camera, ENGINE.GetDefaultViewport()->GetID());
+
+	LoadSampleEntity();
 }
 
 void RenderSimpleSettingWindow()

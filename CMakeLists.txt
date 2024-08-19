@@ -12,8 +12,22 @@ project(FocalEngineExample)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-set(CMAKE_CXX_FLAGS_DEBUG "/MP /ZI /W3 /Od /MDd /JMC /sdl /FC /D IMGUI_IMPL_OPENGL_LOADER_GLEW /D WIN32 /D _WINDOWS /D _DEBUG /D FE_DEBUG_ENABLED")
-set(CMAKE_CXX_FLAGS_RELEASE "/MP /W3 /O2 /Oi /Gy /sdl /FC /GL /OPT:REF /OPT:ICF /D IMGUI_IMPL_OPENGL_LOADER_GLEW /D NDEBUG /D WIN32 /D _WINDOWS")
+# Set compiler flags based on USE_STATIC_RUNTIME
+if(MSVC)
+    # Disable C4251 warning
+    add_compile_options(/wd4251)
+
+    if(USE_STATIC_RUNTIME)
+        set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MTd")
+        set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MT")
+    else()
+        set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MDd")
+        set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MD")
+    endif()
+
+    # Always add /MP for multi-processor compilation
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP")
+endif()
 
 # Turn on the ability to create folders to organize projects (.vcproj)
 # It creates "CMakePredefinedTargets" folder by default and adds CMake
@@ -45,7 +59,18 @@ add_executable(FocalEngineExample WIN32
 								  ${Example_SRC}
 )
 
-target_link_libraries(FocalEngineExample PRIVATE FocalEngine)
+target_link_libraries(FocalEngineExample
+    PRIVATE
+        FEBasicApplication
+        FocalEngine
+        ${GLFW_LIBRARY}
+        ${GLEW_LIBRARY}
+        opengl32.lib
+)
+
+if(BUILD_SHARED_LIBS)
+    target_compile_definitions(FocalEngineExample PRIVATE FOCALENGINE_SHARED)
+endif()
 
 source_group("Source Files" FILES ${Example_SRC})
 
@@ -56,5 +81,32 @@ include_directories(
 	${GLEW_INCLUDE_DIR}
 	${BASICAPP_THIRDPARTY_DIR}
 	${BASICAPP_DIR}
-	${FOCAL_ENGINE_THIRD_PARTY_DIR}
+	${FOCAL_ENGINE_INCLUDES}
 )
+
+# If building as DLL, copy necessary DLLs to output directory
+if(BUILD_SHARED_LIBS)
+    add_custom_command(TARGET FocalEngineExample POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            "$<TARGET_FILE_DIR:FocalEngine>/glfw3.dll"
+            "$<TARGET_FILE_DIR:FocalEngineExample>"
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            "$<TARGET_FILE_DIR:FocalEngine>/FEBasicApplication.dll"
+            "$<TARGET_FILE_DIR:FocalEngineExample>"
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            "$<TARGET_FILE_DIR:FocalEngine>/FocalEngine.dll"
+            "$<TARGET_FILE_DIR:FocalEngineExample>"
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            ${OpenXRLoader_DLL}
+            "$<TARGET_FILE_DIR:FocalEngineExample>"
+    )
+endif()
+
+# If using dynamic runtime, copy necessary DLLs to output directory
+if(NOT USE_STATIC_RUNTIME)
+    add_custom_command(TARGET FocalEngineExample POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            "${GLEW_LIB_DIR}/glew32.dll"
+            "$<TARGET_FILE_DIR:FocalEngineExample>"
+    )
+endif()
