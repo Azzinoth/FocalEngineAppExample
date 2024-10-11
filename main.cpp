@@ -2,24 +2,19 @@
 using namespace FocalEngine;
 
 FEScene* CurrentScene = nullptr;
+FEEntity* CurrentMainCamera = nullptr;
 
-void mouseButtonCallback(int button, int action, int mods)
+void mouseButtonCallback(int Button, int Action, int Mods)
 {
-	if (ImGui::GetIO().WantCaptureMouse)
+	if (Button == GLFW_MOUSE_BUTTON_2 && Action == GLFW_PRESS)
 	{
-		CAMERA_SYSTEM.SetIsIndividualInputActive(CAMERA_SYSTEM.GetMainCameraEntity(CurrentScene), false);
-		return;
+		if (CurrentMainCamera != nullptr)
+			CurrentMainCamera->GetComponent<FECameraComponent>().SetActive(true);
 	}
-
-	if (button == GLFW_MOUSE_BUTTON_2 && action == GLFW_PRESS)
+	else if (Button == GLFW_MOUSE_BUTTON_2 && Action == GLFW_RELEASE)
 	{
-		CAMERA_SYSTEM.SetIsIndividualInputActive(CAMERA_SYSTEM.GetMainCameraEntity(CurrentScene), true);
-	}
-
-
-	if (button == GLFW_MOUSE_BUTTON_2 && action == GLFW_RELEASE)
-	{
-		CAMERA_SYSTEM.SetIsIndividualInputActive(CAMERA_SYSTEM.GetMainCameraEntity(CurrentScene), false);
+		if (CurrentMainCamera != nullptr)
+			CurrentMainCamera->GetComponent<FECameraComponent>().SetActive(false);
 	}
 }
 
@@ -48,10 +43,11 @@ void LoadSampleEntity()
 
 void SetSimpleScene()
 {
-	ENGINE.AddMouseButtonCallback(mouseButtonCallback);
-	ENGINE.AddKeyCallback(keyButtonCallback);
+	INPUT.AddKeyCallback(keyButtonCallback);
+	INPUT.AddMouseButtonCallback(mouseButtonCallback);
 
 	CurrentScene = SCENE_MANAGER.CreateScene();
+	CurrentScene->SetFlag(FESceneFlag::Active | FESceneFlag::Renderable | FESceneFlag::GameMode, true);
 
 	FEEntity* SkyDome = CurrentScene->CreateEntity("SkyDome");
 	SkyDome->GetComponent<FETransformComponent>().SetScale(glm::vec3(100.0f));
@@ -62,10 +58,11 @@ void SetSimpleScene()
 	Sun->GetComponent<FELightComponent>().SetCastShadows(true);
 	Sun->GetComponent<FETransformComponent>().SetRotation(glm::vec3(0.0f, 45.0f, 45.0f));
 
-	FEEntity* Camera = CurrentScene->CreateEntity("Camera");
-	Camera->AddComponent<FECameraComponent>();
-	CAMERA_SYSTEM.SetMainCamera(Camera);
-	CAMERA_SYSTEM.SetCameraViewport(Camera, ENGINE.GetDefaultViewport()->GetID());
+	FEPrefab* FreeCameraPrefab = RESOURCE_MANAGER.GetPrefab("4575527C773848040760656F");
+	std::vector<FEEntity*> AddedEntities = SCENE_MANAGER.InstantiatePrefab(FreeCameraPrefab, CurrentScene, true);
+	CurrentMainCamera = AddedEntities[0];
+	CAMERA_SYSTEM.SetMainCamera(CurrentMainCamera);
+	CAMERA_SYSTEM.SetCameraViewport(CurrentMainCamera, ENGINE.GetDefaultViewport()->GetID());
 
 	LoadSampleEntity();
 }
