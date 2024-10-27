@@ -58,11 +58,17 @@ void SetSimpleScene()
 	Sun->GetComponent<FELightComponent>().SetCastShadows(true);
 	Sun->GetComponent<FETransformComponent>().SetRotation(glm::vec3(0.0f, 45.0f, 45.0f));
 
-	FEPrefab* FreeCameraPrefab = RESOURCE_MANAGER.GetPrefab("4575527C773848040760656F");
-	std::vector<FEEntity*> AddedEntities = SCENE_MANAGER.InstantiatePrefab(FreeCameraPrefab, CurrentScene, true);
+	std::vector<FEPrefab*> CameraPrefab = RESOURCE_MANAGER.GetPrefabByName("Model view camera prefab");
+	if (CameraPrefab.empty())
+		return;
+
+	std::vector<FEEntity*> AddedEntities = SCENE_MANAGER.InstantiatePrefab(CameraPrefab[0], CurrentScene, true);
 	CurrentMainCamera = AddedEntities[0];
 	CAMERA_SYSTEM.SetMainCamera(CurrentMainCamera);
 	CAMERA_SYSTEM.SetCameraViewport(CurrentMainCamera, ENGINE.GetDefaultViewport()->GetID());
+
+	FENativeScriptComponent& NativeScriptComponent = CurrentMainCamera->GetComponent<FENativeScriptComponent>();
+	NativeScriptComponent.SetVariableValue("DistanceToModel", 50.0f);
 
 	LoadSampleEntity();
 }

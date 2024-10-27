@@ -46,18 +46,32 @@ file(RELATIVE_PATH RELATIVE_PATH_TO_ENGINE_FOLDER "${CMAKE_CURRENT_SOURCE_DIR}" 
 set(ENGINE_FOLDER "${RELATIVE_PATH_TO_ENGINE_FOLDER}")
 configure_file(${ENGINE_FOLDER}/ResourceManager/Config.h.in ${ENGINE_FOLDER}/ResourceManager/Config.h @ONLY)
 
-# *************** EDITOR ***************
-file(GLOB Example_SRC
-	"main.cpp"
+if(USE_STATIC_RUNTIME)
+    # Add standard FocalEngine native scripts
+    # TODO: This should be done in the FocalEngine project, or make it simpler to add it user projects
+    file(GLOB Unpacked_NativeScript_2B7956623302254F620A675F_SRC
+	    "SubSystems/FocalEngine/Resources/UserScriptsData/ExtractedScriptModules/2B7956623302254F620A675F/FirstScript.h"
+	    "SubSystems/FocalEngine/Resources/UserScriptsData/ExtractedScriptModules/2B7956623302254F620A675F/FirstScript.cpp"
+    )
+endif()
+
+# *************** Source files ***************
+set(ALL_SOURCE_FILES "")
+list(APPEND ALL_SOURCE_FILES
+    "main.cpp"
 )
 
 link_directories(${GLEW_LIB_DIR})
 link_directories(${GLFW_LIB_DIR})
 
+if(USE_STATIC_RUNTIME)
+	list(APPEND ALL_SOURCE_FILES
+		${Unpacked_NativeScript_2B7956623302254F620A675F_SRC}
+	)
+endif()
+
 # add the executable
-add_executable(FocalEngineExample WIN32
-								  ${Example_SRC}
-)
+add_executable(FocalEngineExample WIN32 ${ALL_SOURCE_FILES})
 
 target_link_libraries(FocalEngineExample
     PRIVATE
@@ -73,6 +87,9 @@ if(BUILD_SHARED_LIBS)
 endif()
 
 source_group("Source Files" FILES ${Example_SRC})
+if(USE_STATIC_RUNTIME)
+	source_group("Source Files/FocalEngine/2B7956623302254F620A675F" FILES ${Unpacked_NativeScript_2B7956623302254F620A675F_SRC})
+endif()
 
 # set the startup project
 set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT FocalEngineExample)
