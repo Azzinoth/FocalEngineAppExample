@@ -12,7 +12,10 @@ project(FocalEngineExample)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# Set compiler flags based on USE_STATIC_RUNTIME
+if(NOT TARGET FocalEngine)
+	add_subdirectory(SubSystems/FocalEngine)
+endif()
+
 if(MSVC)
     # Disable C4251 warning
     add_compile_options(/wd4251)
@@ -25,7 +28,6 @@ if(MSVC)
         set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MD")
     endif()
 
-    # Always add /MP for multi-processor compilation
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP")
 endif()
 
@@ -33,10 +35,6 @@ endif()
 # It creates "CMakePredefinedTargets" folder by default and adds CMake
 # defined projects like INSTALL.vcproj and ZERO_CHECK.vcproj
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
-
-if(NOT TARGET FocalEngine)
-	add_subdirectory(SubSystems/FocalEngine)
-endif()
 
 # Extract the relative path of the engine folder
 file(RELATIVE_PATH RELATIVE_PATH_TO_ENGINE_FOLDER "${CMAKE_CURRENT_SOURCE_DIR}" "${ENGINE_FOLDER}")
