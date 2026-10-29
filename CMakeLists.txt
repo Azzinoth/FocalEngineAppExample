@@ -47,9 +47,9 @@ configure_file(${ENGINE_FOLDER}/ResourceManager/Config.h.in ${ENGINE_FOLDER}/Res
 if(USE_STATIC_RUNTIME)
     # Add standard FocalEngine native scripts
     # TODO: This should be done in the FocalEngine project, or make it simpler to add it user projects
-    file(GLOB Unpacked_NativeScript_2B7956623302254F620A675F_SRC
-	    "SubSystems/FocalEngine/Resources/UserScriptsData/ExtractedScriptModules/2B7956623302254F620A675F/FirstScript.h"
-	    "SubSystems/FocalEngine/Resources/UserScriptsData/ExtractedScriptModules/2B7956623302254F620A675F/FirstScript.cpp"
+    file(GLOB Unpacked_NativeScript_e1ff1a0e-000b-5f87-9b08-dcec07635c17_SRC
+	    "SubSystems/FocalEngine/Resources/UserScriptsData/ExtractedScriptModules/e1ff1a0e-000b-5f87-9b08-dcec07635c17/FirstScript.h"
+	    "SubSystems/FocalEngine/Resources/UserScriptsData/ExtractedScriptModules/e1ff1a0e-000b-5f87-9b08-dcec07635c17/FirstScript.cpp"
     )
 endif()
 
@@ -64,7 +64,7 @@ link_directories(${GLFW_LIB_DIR})
 
 if(USE_STATIC_RUNTIME)
 	list(APPEND ALL_SOURCE_FILES
-		${Unpacked_NativeScript_2B7956623302254F620A675F_SRC}
+		${Unpacked_NativeScript_e1ff1a0e-000b-5f87-9b08-dcec07635c17_SRC}
 	)
 endif()
 
@@ -86,7 +86,7 @@ endif()
 
 source_group("Source Files" FILES ${Example_SRC})
 if(USE_STATIC_RUNTIME)
-	source_group("Source Files/FocalEngine/2B7956623302254F620A675F" FILES ${Unpacked_NativeScript_2B7956623302254F620A675F_SRC})
+	source_group("Source Files/FocalEngine/e1ff1a0e-000b-5f87-9b08-dcec07635c17" FILES ${Unpacked_NativeScript_e1ff1a0e-000b-5f87-9b08-dcec07635c17_SRC})
 endif()
 
 # set the startup project

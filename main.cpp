@@ -26,14 +26,15 @@ void keyButtonCallback(int key, int scancode, int action, int mods)
 
 void LoadSampleEntity()
 {
-	FEMesh* LoadedMesh = RESOURCE_MANAGER.LoadFEMesh("Resources//Cardboard.model");
+	const std::string ResourcesFolder = "Resources//";
+	FEMesh* LoadedMesh = RESOURCE_MANAGER.LoadFEMesh(ResourcesFolder + "Cardboard.model");
 
 	FEMaterial* NewMaterial = RESOURCE_MANAGER.CreateMaterial();
-	NewMaterial->Shader = RESOURCE_MANAGER.GetShader("0800253C242B05321A332D09"/*"FEPBRShader"*/);
-	NewMaterial->SetAlbedoMap(RESOURCE_MANAGER.LoadFETexture("Resources//Albedo.texture"));
-	NewMaterial->SetNormalMap(RESOURCE_MANAGER.LoadFETexture("Resources//NormalMap.texture"));
-	NewMaterial->SetAOMap(RESOURCE_MANAGER.LoadFETexture("Resources//AO.texture"));
-	NewMaterial->SetRoughnessMap(RESOURCE_MANAGER.LoadFETexture("Resources//Roughness.texture"));
+	NewMaterial->Shader = RESOURCE_MANAGER.GetShader(FEEngineResourceIDs::PBRShader);
+	NewMaterial->SetAlbedoMap(RESOURCE_MANAGER.LoadFETexture(ResourcesFolder + "Albedo.texture"));
+	NewMaterial->SetNormalMap(RESOURCE_MANAGER.LoadFETexture(ResourcesFolder + "NormalMap.texture"));
+	NewMaterial->SetAOMap(RESOURCE_MANAGER.LoadFETexture(ResourcesFolder + "AO.texture"));
+	NewMaterial->SetRoughnessMap(RESOURCE_MANAGER.LoadFETexture(ResourcesFolder + "Roughness.texture"));
 
 	FEGameModel* NewGameModel = RESOURCE_MANAGER.CreateGameModel(LoadedMesh, NewMaterial);
 
